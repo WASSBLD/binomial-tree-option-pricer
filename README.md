@@ -1,136 +1,105 @@
-
-# Binomial Tree Option Pricing under the CRR Model
-
-This project implements a Cox-Ross-Rubinstein (CRR) binomial tree framework to price European and American options.
-
-The objective is not only to compute the option price, but also to show the value of the option at each node of the tree and apply the pricing logic based on absence of arbitrage.
-
-## Model Framework
-
-The underlying asset price is modeled with a recombining binomial tree.
-
-At each time step:
-
-- The asset price can move up by a factor `u`
-- Or move down by a factor `d`
-
-The time step is:
-
-- `dt = T / N`
-
-where:
-
-- `S0` is the initial asset price
-- `K` is the strike price
-- `T` is the maturity
-- `N` is the number of steps
-- `sigma` is the volatility
-
-Using the CRR model:
-
-- `u = exp(sigma * sqrt(dt))`
-- `d = exp(-sigma * sqrt(dt))`
-
-## Absence of Arbitrage Logic
-
-The pricing is based on the principle of absence of arbitrage.
-
-Under the risk-neutral measure, the option value is equal to the discounted expected value of future payoffs.
-
-For equity options with dividend yield `q`, the risk-neutral probability is:
-
-- `p = (exp((r - q) * dt) - d) / (u - d)`
-
-where:
-
-- `r` is the risk-free rate
-- `q` is the dividend yield
-
-For forex options, the domestic and foreign rates are used:
-
-- `p = (exp((rd - rf) * dt) - d) / (u - d)`
-
-where:
-
-- `rd` is the domestic risk-free rate
-- `rf` is the foreign risk-free rate
-
 ## Pricing Logic
+
+The option is priced by **backward induction** under the **risk-neutral measure**.
 
 At maturity, the option value is equal to its payoff.
 
-For a call option:
+### Call Option Payoff
 
-- `payoff = max(S - K, 0)`
+\[
+f_T = \max(S_T - K, 0)
+\]
 
-For a put option:
+### Put Option Payoff
 
-- `payoff = max(K - S, 0)`
+\[
+f_T = \max(K - S_T, 0)
+\]
 
-The option price is then computed by backward induction.
+At each prior node, the option value is equal to the **discounted risk-neutral expected value** of the option in the next period.
 
-For European options:
+### European Option Valuation
 
-- `V = discount * (p * V_up + (1 - p) * V_down)`
+In the basic binomial framework, the one-step valuation formula is:
 
-For American options:
+\[
+f = e^{-r\Delta t}\left[p f_u + (1-p) f_d\right]
+\]
 
-- `V = max(continuation value, intrinsic value)`
+where:
 
-This means that for American options, the model checks at each node whether early exercise is optimal.
+- \(f\) = option value at the current node
+- \(f_u\) = option value at the up-state node in the next period
+- \(f_d\) = option value at the down-state node in the next period
+- \(p\) = risk-neutral probability
+- \(r\) = risk-free rate
+- \(\Delta t\) = time step length
 
-## Key Features
+This is the standard no-arbitrage binomial pricing formula: the current option value is the discounted expected future value under risk-neutral probabilities.
 
-- Pricing of European call and put options
-- Pricing of American call and put options
-- Equity option pricing with risk-free rate and dividend yield
-- Forex option pricing with domestic and foreign interest rates
-- Node-by-node option valuation
-- Early exercise logic for American options
-- Combined tree output with stock prices and option values on the same lattice
+### Risk-Neutral Probability
 
-## Why This Matters
+For the basic no-dividend equity case:
 
-Binomial trees are widely used in quantitative finance because they are intuitive and flexible.
+\[
+p = \frac{e^{r\Delta t} - d}{u - d}
+\]
 
-They are especially useful for:
+For equity options with a continuous dividend yield \(q\), the more general formula becomes:
 
-- Understanding option pricing step by step
-- Valuing American options
-- Showing early exercise decisions
-- Connecting financial theory to numerical implementation
+\[
+p = \frac{e^{(r-q)\Delta t} - d}{u - d}
+\]
 
-This project highlights how option prices are built backward from maturity to the initial node using no-arbitrage logic.
+For FX options, the foreign interest rate plays the role of a carry term, so the probability becomes:
 
-## Project Structure
+\[
+p = \frac{e^{(r_d-r_f)\Delta t} - d}{u - d}
+\]
 
-├── binomial_tree.py  
-├── requirements.txt  
-└── README.md
+where:
 
-## Technologies Used
+- \(r_d\) = domestic interest rate
+- \(r_f\) = foreign interest rate
 
-- Python
-- NumPy
-- Pandas
-- Matplotlib
+### American Option Valuation
 
-## Example Output
+For an American option, the model compares:
 
-The output shows:
+- the **continuation value**
+- the **intrinsic value**
 
-- Final option price
-- Up and down factors
-- Risk-neutral probability
-- Stock price tree
-- Option value tree
-- Early exercise flags for American options
-- Combined graphical tree with stock prices and option values at each node
+The continuation value is:
 
-## Possible Extensions
+\[
+f^{cont} = e^{-r\Delta t}\left[p f_u + (1-p) f_d\right]
+\]
 
-- Automatic market data input from Yahoo Finance
-- Sensitivity analysis for spot, volatility, and maturity
-- Root delta and other Greeks
-- Pricing for index and commodity options
-- Comparison with Black-Scholes for European options
+and the option value is:
+
+\[
+f = \max(f^{cont}, \text{intrinsic value})
+\]
+
+So the model checks at each node whether it is optimal to continue holding the option or to exercise it immediately.
+
+For a call, the intrinsic value is:
+
+\[
+\max(S-K, 0)
+\]
+
+For a put, the intrinsic value is:
+
+\[
+\max(K-S, 0)
+\]
+
+### Interpretation
+
+This means that:
+
+- for a **European option**, the holder can only exercise at maturity, so the value is always the discounted expected continuation value;
+- for an **American option**, the holder may exercise before maturity, so the model must compare continuation and immediate exercise at every node.
+
+This backward-induction structure is what makes the binomial tree especially useful for pricing American-style derivatives.

@@ -128,3 +128,43 @@ This means that:
 - for an **American option**, the holder may exercise before maturity, so the model must compare continuation and immediate exercise at every node.
 
 This backward-induction structure is what makes the binomial tree especially useful for pricing American-style derivatives.
+## Input Parameters
+
+The script uses a structured input dictionary with the following fields:
+
+- `asset_type`: `"equity"` or `"forex"`
+- `option_type`: `"call"` or `"put"`
+- `style`: `"european"` or `"american"`
+- `S0`: initial underlying price
+- `K`: strike price
+- `T`: maturity
+- `sigma`: volatility
+- `N`: number of time steps
+
+For equities:
+- `r`: risk-free rate
+- `q`: dividend yield
+
+For FX:
+- `rd`: domestic rate
+- `rf`: foreign rate
+
+---
+
+## Example Input
+
+```python
+data = {
+    "asset_type": "equity",
+    "option_type": "put",
+    "style": "european",
+    "S0": 50.0,
+    "K": 52.0,
+    "T": 2.0,
+    "sigma": 0.30,
+    "N": 10,
+    "r": 0.05,
+    "q": 0.00,
+    "rd": 0.05,
+    "rf": 0.02
+}

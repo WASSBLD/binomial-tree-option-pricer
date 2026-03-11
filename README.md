@@ -1,3 +1,28 @@
+Binomial Tree Option Pricing under the CRR Model
+
+This project implements a **Cox-Ross-Rubinstein (CRR) recombining binomial tree** to price **European and American options** on both **equities** and **foreign exchange (FX)** under a no-arbitrage, risk-neutral valuation framework.
+
+The objective is not only to compute the option price at the initial node, but also to show how the value is built **node by node** through backward induction. The model displays both the **underlying asset price tree** and the **option value tree**, and flags **early exercise** when it is optimal for American options.
+
+---
+
+## Project Objective
+
+The project is designed to connect financial theory with numerical implementation.
+
+It shows how option prices are derived from:
+
+- the dynamics of the underlying asset under a binomial process,
+- the no-arbitrage principle,
+- risk-neutral valuation,
+- and backward induction from maturity to the present.
+
+The framework supports:
+
+- **European call and put options**
+- **American call and put options**
+- **Equity options** with a continuous dividend yield
+- **FX options** with domestic and foreign interest rates
 ## Pricing Logic
 
 The option is priced by **backward induction** under the **risk-neutral measure**.
@@ -103,3 +128,43 @@ This means that:
 - for an **American option**, the holder may exercise before maturity, so the model must compare continuation and immediate exercise at every node.
 
 This backward-induction structure is what makes the binomial tree especially useful for pricing American-style derivatives.
+## Input Parameters
+
+The script uses a structured input dictionary with the following fields:
+
+- `asset_type`: `"equity"` or `"forex"`
+- `option_type`: `"call"` or `"put"`
+- `style`: `"european"` or `"american"`
+- `S0`: initial underlying price
+- `K`: strike price
+- `T`: maturity
+- `sigma`: volatility
+- `N`: number of time steps
+
+For equities:
+- `r`: risk-free rate
+- `q`: dividend yield
+
+For FX:
+- `rd`: domestic rate
+- `rf`: foreign rate
+
+---
+
+## Example Input
+
+```python
+data = {
+    "asset_type": "equity",
+    "option_type": "put",
+    "style": "european",
+    "S0": 50.0,
+    "K": 52.0,
+    "T": 2.0,
+    "sigma": 0.30,
+    "N": 10,
+    "r": 0.05,
+    "q": 0.00,
+    "rd": 0.05,
+    "rf": 0.02
+}

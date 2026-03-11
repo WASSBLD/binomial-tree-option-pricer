@@ -1,3 +1,28 @@
+Binomial Tree Option Pricing under the CRR Model
+
+This project implements a **Cox-Ross-Rubinstein (CRR) recombining binomial tree** to price **European and American options** on both **equities** and **foreign exchange (FX)** under a no-arbitrage, risk-neutral valuation framework.
+
+The objective is not only to compute the option price at the initial node, but also to show how the value is built **node by node** through backward induction. The model displays both the **underlying asset price tree** and the **option value tree**, and flags **early exercise** when it is optimal for American options.
+
+---
+
+## Project Objective
+
+The project is designed to connect financial theory with numerical implementation.
+
+It shows how option prices are derived from:
+
+- the dynamics of the underlying asset under a binomial process,
+- the no-arbitrage principle,
+- risk-neutral valuation,
+- and backward induction from maturity to the present.
+
+The framework supports:
+
+- **European call and put options**
+- **American call and put options**
+- **Equity options** with a continuous dividend yield
+- **FX options** with domestic and foreign interest rates
 ## Pricing Logic
 
 The option is priced by **backward induction** under the **risk-neutral measure**.
